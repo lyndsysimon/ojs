@@ -20,6 +20,9 @@ class OsfPlugin extends GenericPlugin {
             	array(&$this, 'handleSave')
             );
 
+            // Handle page requests
+            HookRegistry::register('LoadHandler', array(&$this, 'callbackHandleContent'));
+
             // Load OsfLinksDAO
 			$this->import('OsfLinksDAO');
 			$osfLinksDAO = new OsfLinksDAO($this->getName());
@@ -42,6 +45,20 @@ class OsfPlugin extends GenericPlugin {
 	function getDescription() {
 		return 'OSF Plugin Description';
 	}
+
+	function callbackHandleContent($hookName, $args) {
+		$path =& $args[0];
+		$op =& $args[1];
+
+		if ($path == 'api') {
+			define('HANDLER_CLASS', 'ApiHandler');
+			$this->import('ApiHandler');
+			return true;
+		}
+		return false;
+	}
+
+
 
 	function handleSave($hookName, $args) {
 		$step = $args[0];
@@ -93,8 +110,6 @@ class OsfPlugin extends GenericPlugin {
 		$output .= '</table>';
 		$output .= '</div>';
 		$output .= '<div class="separator"></div>';
-
-		die(var_dump($templateManager));
 
 		return false;
 	}
